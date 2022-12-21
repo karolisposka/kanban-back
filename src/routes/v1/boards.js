@@ -1,5 +1,5 @@
 const express = require('express');
-const {ObjectId, ObjectID} = require('mongodb');
+const {ObjectId} = require('mongodb');
 const checkIfLoggedIn = require('../../middleware/auth/auth');
 const {getDb} = require('../../controllers/database');
 const router = express.Router();
@@ -174,8 +174,6 @@ router.post('/subtasks/changeStatus', checkIfLoggedIn, async(req,res) => {
     res.status(500).send({err:'something wrong with the server. Please try again later'});
   }
 });
-
-
 
 
 module.exports = router;

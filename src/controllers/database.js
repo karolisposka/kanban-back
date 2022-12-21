@@ -1,10 +1,11 @@
 const {MongoClient} = require('mongodb');
+const {mongodb}  = require('../config');
 
 let dbConnection;
 
 module.exports={
     connectToDb: (cb) => {
-        MongoClient.connect('mongodb://localhost:27017/kanbanboard')
+        MongoClient.connect(mongodb)
         .then((client) => {
             dbConnection = client.db();
             return cb()
