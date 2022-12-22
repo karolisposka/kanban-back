@@ -24,7 +24,7 @@ router.get('/get/:id', checkIfLoggedIn, async (req,res) => {
   try{
     const id = ObjectId(req.params.id);
     const db = getDb();
-    const response = await db.collection('boards').findOne({_id: id});
+    const response = await db.collection('boards').findOne({_id: id, user_id: req.user});
     if(response){
       return res.send(response);
     }else{
