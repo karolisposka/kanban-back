@@ -1,6 +1,8 @@
 const express = require('express');
 const {ObjectId} = require('mongodb');
 const checkIfLoggedIn = require('../../middleware/auth/auth');
+const {boardAddValidation, boardUpdate, addTask, updateTask, updateSubtask} = require('../../middleware/validation/validationSchemas/boardsValidation');
+const validate = require('../../middleware/validation/validation');
 const {getDb} = require('../../controllers/database');
 const router = express.Router();
 
@@ -51,7 +53,7 @@ router.delete('/delete/:boardId', checkIfLoggedIn, async(req,res) => {
 })
 
 
-router.post('/board/add', checkIfLoggedIn, async(req,res)=> {
+router.post('/board/add', checkIfLoggedIn, validate(boardAddValidation), async(req,res)=> {
   try{
     const db = getDb();
     const response = await db.collection('boards').insertOne({"user_id": req.user, ...req.body}); 
@@ -63,7 +65,7 @@ router.post('/board/add', checkIfLoggedIn, async(req,res)=> {
   }
 });
 
-router.post('/board/update', checkIfLoggedIn, async(req,res) => {
+router.post('/board/update', checkIfLoggedIn, validate(boardUpdate), async(req,res) => {
   try{
     const {page, object} = req.body;
     const id = ObjectId(page);
@@ -81,7 +83,7 @@ router.post('/board/update', checkIfLoggedIn, async(req,res) => {
   }
 })
 
-router.post('/task/add', checkIfLoggedIn, async(req,res) => {
+router.post('/task/add', checkIfLoggedIn, validate(addTask), async(req,res) => {
   const {page, object} = req.body;
   const id = await ObjectId(page);
   const status = object.status;
@@ -104,7 +106,6 @@ router.post('/tasks/delete/:taskId', checkIfLoggedIn, async (req,res) =>{
     const id = ObjectId(board)
     const db = getDb();
     const response = await db.collection('boards').updateOne({'_id': id}, {$pull: {"columns.$[column].tasks": {'name': req.params.taskId}}}, {arrayFilters: [{'column.name': column}]});
-    console.log(response);
     if(response.modifiedCount){
       res.send({msg: 'task successfully deleted', object: {column, taskId: req.params.taskId}})
     }else{
@@ -116,7 +117,7 @@ router.post('/tasks/delete/:taskId', checkIfLoggedIn, async (req,res) =>{
 })
 
 
-router.post('/tasks/changeStatus', checkIfLoggedIn, async (req,res ) => {
+router.post('/tasks/changeStatus', checkIfLoggedIn, validate(updateTask), async (req,res ) => {
   try{
     const { status, page, column, task } = req.body.object;
     const object = ObjectId(page);
@@ -144,12 +145,11 @@ router.post('/tasks/changeStatus', checkIfLoggedIn, async (req,res ) => {
 })
 
 
-router.post('/subtasks/changeStatus', checkIfLoggedIn, async(req,res) => {
+router.post('/subtasks/changeStatus', checkIfLoggedIn, validate(updateSubtask), async(req,res) => {
   try{
     const {id, status, page, column, task} = req.body;
     const object = ObjectId(page)
     const statusChangeTo = !status;
-   
     const db = getDb();
     const response = await db.collection('boards')
     .updateOne({"_id": object},{$set: {"columns.$[column].tasks.$[task].subtasks.$[subtask].isCompleted": statusChangeTo}},{arrayFilters: [
