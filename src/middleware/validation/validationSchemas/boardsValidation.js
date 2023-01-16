@@ -41,16 +41,18 @@ const addTask = joi.object({
 })
 
 const updateTask = joi.object({
-    page: joi.string().required(),
-    status: joi.string().required(),
-    page: joi.string().required(),
-    column: joi.string().required()
+    object: joi.object().keys({
+        status: joi.string().required(),
+        page: joi.string().required(),
+        column: joi.string().required(),
+        task: joi.string().required()
+    })
 })
 
 const updateSubtask = joi.object({
     id: joi.string().required(),
     status: joi.boolean().required(),
-    page: joi.string().required(),
+    page: joi.string(),
     column: joi.string().required(),
     task: joi.string().required()
 })

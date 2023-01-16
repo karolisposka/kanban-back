@@ -145,9 +145,11 @@ router.post('/tasks/changeStatus', checkIfLoggedIn, validate(updateTask), async 
 })
 
 
-router.post('/subtasks/changeStatus', checkIfLoggedIn, validate(updateSubtask), async(req,res) => {
+router.post('/subtasks/changeStatus', checkIfLoggedIn, async(req,res) => {
   try{
+    console.log(req.body);
     const {id, status, page, column, task} = req.body;
+    
     const object = ObjectId(page)
     const statusChangeTo = !status;
     const db = getDb();
