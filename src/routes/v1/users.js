@@ -12,14 +12,13 @@ router.post("/register", validation(registerValidation), async (req, res) => {
     try {
       const db = getDb();
       const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-      const data = await db.collection('users').insertOne({username: `${req.body.username}`, password: `${hashedPassword}`});
+      const data = await db.collection('users').insertOne({username: req.body.username, password: hashedPassword});
       if (!data.insertedId) {
         return res.status(500).send({err: "something wrong with the server. Please try again later"});
       } else {
         return res.send({ msg: "registration completed" });
       }
-    } catch (err) {
-      console.log(err);
+    } catch (err) {  
       if (err.code === 11000) {
         return res.send({ err: "user already exists" });
       }
